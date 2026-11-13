@@ -134,6 +134,7 @@ export function AndroidWebModal({
 
       return () => window.removeEventListener("beforeinstallprompt", handler);
     }
+    return undefined;
   }, []);
 
   const handleInstallClick = async () => {

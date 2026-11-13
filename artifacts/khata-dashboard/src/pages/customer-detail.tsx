@@ -89,7 +89,7 @@ export default function CustomerDetail() {
   }
 
   const txns = k.data?.transactions ?? [];
-  const paymentTxns = txns.filter((t) => t.type === "payment");
+  const paymentTxns = txns.filter((t) => t.transaction_type === "payment");
   const kind = balanceKind(customer.balance);
 
   // Calculate purchases total from purchase list if available, or fall back to total_credit
