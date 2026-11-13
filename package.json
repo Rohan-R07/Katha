@@ -1,0 +1,26 @@
+{
+  "name": "workspace",
+  "version": "0.0.0",
+  "license": "MIT",
+  "workspaces": [
+    "artifacts/*",
+    "lib/*",
+    "scripts"
+  ],
+  "scripts": {
+    "test:deployment": "node --test scripts/vercel-env.test.mjs && python scripts/test_vercel_gateway.py",
+    "build:vercel": "node scripts/build-vercel.mjs",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck:libs": "tsc --build",
+    "typecheck": "tsc -b"
+  },
+  "private": true,
+  "packageManager": "pnpm@10.26.1",
+  "dependencies": {
+    "@replit/connectors-sdk": "^0.7.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10",
+    "typescript": "~5.9.3"
+  }
+}

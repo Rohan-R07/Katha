@@ -1,0 +1,322 @@
+{
+  "version": "2.0.0-khata-production",
+  "generatedAt": "2026-11-11T19:10:23.089Z",
+  "shopId": "shop_101",
+  "shopName": "Sri Manjunatha Kirana & General Stores",
+  "shopkeeperName": "Basavaraj Gowda",
+  "preferredLanguage": "kn",
+  "speechLocale": "kn-IN",
+  "fallbackLocale": "en-IN",
+  "amoghApiBaseUrl": "http://localhost:8000",
+  "endpoints": {
+    "parseVoiceOrder": "http://localhost:8000/api/voice/parse-order",
+    "verifyProduct": "http://localhost:8000/api/inventory/verify",
+    "confirmBill": "http://localhost:8000/api/billing/invoices"
+  },
+  "supportedUnits": [
+    {
+      "unit": "kg",
+      "spokenAliases": [
+        "kg",
+        "kilo",
+        "kilogram",
+        "ಕೆಜಿ",
+        "ಕಿಲೋ",
+        "किलो",
+        "किलोग्राम"
+      ]
+    },
+    {
+      "unit": "gram",
+      "spokenAliases": [
+        "g",
+        "gm",
+        "gram",
+        "grams",
+        "ಗ್ರಾಂ",
+        "ಗ್ರಾಮ್",
+        "ग्राम"
+      ]
+    },
+    {
+      "unit": "packet",
+      "spokenAliases": [
+        "pkt",
+        "packet",
+        "packets",
+        "ಪ್ಯಾಕೆಟ್",
+        "पैकेट"
+      ]
+    },
+    {
+      "unit": "piece",
+      "spokenAliases": [
+        "pc",
+        "piece",
+        "pieces",
+        "ಪೀಸ್",
+        "ಟುಕ್ಡಾ",
+        "नग"
+      ]
+    },
+    {
+      "unit": "litre",
+      "spokenAliases": [
+        "l",
+        "ltr",
+        "litre",
+        "litres",
+        "ಲೀಟರ್",
+        "लीटर"
+      ]
+    },
+    {
+      "unit": "pouch",
+      "spokenAliases": [
+        "pouch",
+        "pouches",
+        "ಪೌಚ್",
+        "पाउच"
+      ]
+    },
+    {
+      "unit": "bottle",
+      "spokenAliases": [
+        "bottle",
+        "bottles",
+        "ಬಾಟಲ್",
+        "बोतल"
+      ]
+    },
+    {
+      "unit": "box",
+      "spokenAliases": [
+        "box",
+        "boxes",
+        "ಡಬ್ಬ",
+        "ಪೆಟ್ಟಿಗೆ",
+        "डिब्बा"
+      ]
+    }
+  ],
+  "weightParameters": [
+    {
+      "label": "Quarter KG / 250g",
+      "multiplier": 0.25,
+      "spokenAliases": [
+        "250g",
+        "paavu",
+        "pao",
+        "ಕಾಲು ಕೆಜಿ",
+        "पाव किलो"
+      ]
+    },
+    {
+      "label": "Half KG / 500g",
+      "multiplier": 0.5,
+      "spokenAliases": [
+        "500g",
+        "adha",
+        "ardha",
+        "ಅರ್ಧ ಕೆಜಿ",
+        "आधा किलो"
+      ]
+    },
+    {
+      "label": "1 KG",
+      "multiplier": 1,
+      "spokenAliases": [
+        "1kg",
+        "one kg",
+        "ondh kilo",
+        "ಒಂದು ಕೆಜಿ",
+        "एक किलो"
+      ]
+    },
+    {
+      "label": "2 KG",
+      "multiplier": 2,
+      "spokenAliases": [
+        "2kg",
+        "two kg",
+        "eradu kilo",
+        "ಎರಡು ಕೆಜಿ",
+        "दो किलो"
+      ]
+    },
+    {
+      "label": "5 KG",
+      "multiplier": 5,
+      "spokenAliases": [
+        "5kg",
+        "five kg",
+        "aidhu kilo",
+        "ಐದು ಕೆಜಿ",
+        "पांच किलो"
+      ]
+    }
+  ],
+  "catalogDictionary": [
+    {
+      "canonicalName": "Sugar (M-Grade)",
+      "aliases": [
+        "sugar (m-grade)",
+        "ಸಕ್ಕರೆ (ಉತ್ತಮ ದರ್ಜೆ)",
+        "चीनी (सफेद)",
+        "sugar",
+        "sakkare",
+        "cheeni",
+        "shakkara"
+      ],
+      "category": "Staples & Grains",
+      "unit": "kg",
+      "defaultPrice": 44
+    },
+    {
+      "canonicalName": "Toor Dal (Premium Quality)",
+      "aliases": [
+        "toor dal (premium quality)",
+        "ತೊಗರಿ ಬೇಳೆ (ಉತ್ತಮ)",
+        "अरहर / तूर दाल",
+        "toor dal",
+        "togari bele",
+        "arhar dal",
+        "dal",
+        "bele"
+      ],
+      "category": "Dals & Pulses",
+      "unit": "kg",
+      "defaultPrice": 165
+    },
+    {
+      "canonicalName": "Aashirvaad Shudh Chakki Atta (5kg)",
+      "aliases": [
+        "aashirvaad shudh chakki atta (5kg)",
+        "ಆಶೀರ್ವಾದ್ ಗೋಧಿ ಹಿಟ್ಟು (5 ಕೆಜಿ)",
+        "आशीर्वाद आटा (5 किलो)",
+        "atta",
+        "godhi hittu",
+        "aashirvaad",
+        "wheat flour",
+        "5kg atta"
+      ],
+      "category": "Flours & Atta",
+      "unit": "packet",
+      "defaultPrice": 255
+    },
+    {
+      "canonicalName": "Nandini Toned Fresh Milk (500ml)",
+      "aliases": [
+        "nandini toned fresh milk (500ml)",
+        "ನಂದಿನಿ ನೀಲಿ ಹಾಲು (500 ಮಿಲಿ)",
+        "ನಂದಿನಿ ದೂಧ್ (500 मिली)",
+        "milk",
+        "haalu",
+        "doodh",
+        "nandini milk",
+        "toned milk"
+      ],
+      "category": "Dairy",
+      "unit": "pouch",
+      "defaultPrice": 24
+    },
+    {
+      "canonicalName": "Maggi 2-Minute Masala Noodles (70g)",
+      "aliases": [
+        "maggi 2-minute masala noodles (70g)",
+        "ಮ್ಯಾಗಿ 2-ನಿಮಿಷ ಮಸಾಲಾ ನೂಡಲ್ಸ್",
+        "मैगी मसाला नूडल्स (70 ग्राम)",
+        "maggi",
+        "noodles",
+        "maggi packet",
+        "masala noodles"
+      ],
+      "category": "Packaged Foods",
+      "unit": "packet",
+      "defaultPrice": 14
+    },
+    {
+      "canonicalName": "Tata Salt Vaccum Evaporated (1kg)",
+      "aliases": [
+        "tata salt vaccum evaporated (1kg)",
+        "ಟಾಟಾ ಉಪ್ಪು (1 ಕೆಜಿ)",
+        "टाटा नमक (1 किलो)",
+        "salt",
+        "uppu",
+        "namak",
+        "tata salt"
+      ],
+      "category": "Spices & Seasoning",
+      "unit": "packet",
+      "defaultPrice": 28
+    },
+    {
+      "canonicalName": "Fortune Sunlite Refined Sunflower Oil (1L)",
+      "aliases": [
+        "fortune sunlite refined sunflower oil (1l)",
+        "ಫಾರ್ಚೂನ್ ಸೂರ್ಯಕಾಂತಿ ಎಣ್ಣೆ (1 ಲೀಟರ್)",
+        "फॉर्च्यून सूरजमुखी तेल (1 लीटर)",
+        "oil",
+        "yenne",
+        "tel",
+        "sunflower oil",
+        "fortune oil"
+      ],
+      "category": "Oils & Ghee",
+      "unit": "pouch",
+      "defaultPrice": 135
+    },
+    {
+      "canonicalName": "Sona Masoori Raw Rice (Standard)",
+      "aliases": [
+        "sona masoori raw rice (standard)",
+        "ಸೋನಾ ಮಸೂರಿ ಅಕ್ಕಿ",
+        "सोना मसूरी चावल",
+        "rice",
+        "akki",
+        "chawal",
+        "sona masoori",
+        "bhattha"
+      ],
+      "category": "Staples & Grains",
+      "unit": "kg",
+      "defaultPrice": 58
+    },
+    {
+      "canonicalName": "Bru Instant Coffee Powder (100g)",
+      "aliases": [
+        "bru instant coffee powder (100g)",
+        "ಬ್ರೂ ಇನ್‌ಸ್ಟೆಂಟ್ ಕಾಫಿ ಪುಡಿ (100ಗ್ರಾಂ)",
+        "ब्रू इंस्टेंट कॉफ़ी (100 ग्राम)",
+        "bru",
+        "coffee",
+        "kaafi",
+        "bru coffee"
+      ],
+      "category": "Beverages",
+      "unit": "bottle",
+      "defaultPrice": 95
+    },
+    {
+      "canonicalName": "Red Chilli Powder / Byadagi Chilli (Loose)",
+      "aliases": [
+        "red chilli powder / byadagi chilli (loose)",
+        "ಬ್ಯಾಡಗಿ ಮೆಣಸಿನ ಪುಡಿ (ಖಾರ)",
+        "लाल मिर्च पाउडर",
+        "chilli powder",
+        "menasina pudi",
+        "mirchi powder",
+        "lal mirch"
+      ],
+      "category": "Spices & Seasoning",
+      "unit": "kg",
+      "defaultPrice": 340
+    }
+  ],
+  "ttsSettings": {
+    "voiceRate": 0.95,
+    "voicePitch": 1,
+    "billingAnnouncementTemplate": "{shopName}. ಒಟ್ಟು ಬಿಲ್ ಮೊತ್ತ {total} ರೂಪಾಯಿಗಳು. ದಯವಿಟ್ಟು ಯುಪಿಐ ಅಥವಾ ನಗದು ಮೂಲಕ ಪಾವತಿಸಿ.",
+    "paymentSuccessTemplate": "{amount} ರೂಪಾಯಿ ಪಾವತಿ ಯಶಸ್ವಿಯಾಗಿದೆ. ಧನ್ಯವಾದಗಳು!"
+  }
+}

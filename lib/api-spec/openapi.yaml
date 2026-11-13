@@ -1,0 +1,930 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 1.0.0
+  description: KHATA shared API. Money is decimal strings in INR. All private endpoints derive shop identity from authentication.
+servers:
+  - url: /api
+security:
+  - cookieAuth: []
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      security: []
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+  /auth/register:
+    post:
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RegistrationInput" }
+      responses:
+        "201":
+          description: Registered and signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+  /auth/login:
+    post:
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginInput" }
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+  /auth/logout:
+    post:
+      operationId: logout
+      responses:
+        "200":
+          description: Session revoked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /auth/me:
+    get:
+      operationId: getMe
+      responses:
+        "200":
+          description: Current identity
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+  /shops:
+    post:
+      operationId: createShop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ShopInput" }
+      responses:
+        "201":
+          description: Shop created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Shop" }
+  /shops/me:
+    get:
+      operationId: getShop
+      responses:
+        "200":
+          description: Current shop
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Shop" }
+    put:
+      operationId: updateShop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ShopInput" }
+      responses:
+        "200":
+          description: Shop updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Shop" }
+  /customers:
+    get:
+      operationId: listCustomers
+      parameters:
+        - { name: search, in: query, schema: { type: string } }
+        - { name: balance_status, in: query, schema: { type: string, enum: [all, outstanding, settled, advance] } }
+      responses:
+        "200":
+          description: Shop customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Customer" }
+    post:
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CustomerInput" }
+      responses:
+        "201":
+          description: Customer and opening ledger entry committed atomically
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Customer" }
+  /customers/{customer_id}:
+    parameters:
+      - { name: customer_id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getCustomer
+      responses:
+        "200":
+          description: Customer
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Customer" }
+    put:
+      operationId: updateCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CustomerUpdate" }
+      responses:
+        "200":
+          description: Customer updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Customer" }
+  /transactions:
+    get:
+      operationId: listTransactions
+      parameters:
+        - { name: search, in: query, schema: { type: string } }
+        - { name: customer_id, in: query, schema: { type: string } }
+        - { name: transaction_type, in: query, schema: { type: string, enum: [credit, payment, reversal] } }
+        - { name: date_from, in: query, schema: { type: string, format: date } }
+        - { name: date_to, in: query, schema: { type: string, format: date } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 1000, default: 100 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        "200":
+          description: Immutable ledger history, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Transaction" }
+    post:
+      operationId: createTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TransactionInput" }
+      responses:
+        "201":
+          description: Committed entry (same result on an identical idempotent retry)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transaction" }
+  /transactions/{transaction_id}:
+    parameters:
+      - { name: transaction_id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getTransaction
+      responses:
+        "200":
+          description: Transaction audit details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transaction" }
+  /transactions/{transaction_id}/reverse:
+    parameters:
+      - { name: transaction_id, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: reverseTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReversalInput" }
+      responses:
+        "201":
+          description: Linked opposite entry committed, original preserved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transaction" }
+  /payments:
+    post:
+      operationId: recordPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PaymentInput" }
+      responses:
+        "201":
+          description: Payment committed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transaction" }
+  /purchases:
+    get:
+      operationId: listPurchases
+      description: Itemized purchases, newest first. Date filters use Asia/Kolkata business days. Use customer_id with date_from/date_to for voice queries such as yesterday's purchases.
+      parameters:
+        - { name: customer_id, in: query, schema: { type: string } }
+        - { name: date_from, in: query, schema: { type: string, format: date } }
+        - { name: date_to, in: query, schema: { type: string, format: date } }
+        - { name: search, in: query, schema: { type: string, maxLength: 150 } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        "200":
+          description: Shop-scoped purchase history including immutable item snapshots
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PurchasePage" }
+    post:
+      operationId: createPurchase
+      description: Atomically saves purchase items and, for Khata only, exactly one ledger credit. Identical retries return the original purchase; changed payloads with the same key return 409. Cash/UPI do not repay existing debt. No split payments or stock deduction.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PurchaseInput" }
+      responses:
+        "201":
+          description: Purchase committed or identical retry returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Purchase" }
+  /purchases/{purchase_id}:
+    parameters:
+      - { name: purchase_id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getPurchase
+      responses:
+        "200":
+          description: Purchase and full bill details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Purchase" }
+  /khata/summary:
+    get:
+      operationId: getSummary
+      responses:
+        "200":
+          description: Live shop totals and seven-day activity
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Summary" }
+  /khata/customers/{customer_id}:
+    parameters:
+      - { name: customer_id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getCustomerKhata
+      responses:
+        "200":
+          description: Full individual ledger
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CustomerKhata" }
+  /reports/daily:
+    get:
+      operationId: getDailyReport
+      parameters:
+        - { name: date, in: query, schema: { type: string, format: date } }
+      responses:
+        "200":
+          description: Asia/Kolkata day with closing balance as of that day
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DailyReport" }
+  /categories:
+    get:
+      operationId: listCategories
+      responses:
+        "200":
+          description: Shop categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Category" }
+    post:
+      operationId: createCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CategoryInput" }
+      responses:
+        "201":
+          description: Category created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Category" }
+  /products:
+    get:
+      operationId: listProducts
+      parameters:
+        - { name: search, in: query, schema: { type: string } }
+        - { name: category_id, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: Simple shop catalog (no stock tracking)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Product" }
+    post:
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProductInput" }
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Product" }
+  /products/{product_id}:
+    parameters:
+      - { name: product_id, in: path, required: true, schema: { type: string } }
+    put:
+      operationId: updateProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProductInput" }
+      responses:
+        "200":
+          description: Product updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Product" }
+  /integrations/status:
+    get:
+      operationId: getIntegrationStatus
+      responses:
+        "200":
+          description: Shared module readiness
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/IntegrationStatus" }
+  /ai/command:
+    post:
+      operationId: executeAiCommand
+      description: Structured intent only, not natural language parsing. Financial writes require explicit confirmed=true and a stable idempotency key.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AiCommandInput" }
+      responses:
+        "200":
+          description: Actual validated result, never a fabricated success
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiResult" }
+  /ai/voice/process:
+    post:
+      operationId: processVoice
+      description: Multilingual Gnani AI voice processing endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VoiceProcessInput" }
+      responses:
+        "200":
+          description: Processed voice assistant result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VoiceProcessResult" }
+  /documents/extract-khata:
+    post:
+      operationId: extractKhata
+      summary: Extract transactions from handwritten khata image or PDF
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: "#/components/schemas/KhataFileUploadInput" }
+      responses:
+        "200":
+          description: Extracted khata entries
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OcrExtractResponse" }
+  /documents/save-batch:
+    post:
+      operationId: saveKhataBatch
+      summary: Save verified handwritten khata entries to ledger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/KhataBatchSaveInput" }
+      responses:
+        "200":
+          description: Batch saved response
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, saved_count, message]
+                properties:
+                  status: { type: string }
+                  saved_count: { type: integer }
+                  message: { type: string }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: khata_session }
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string }
+    Message:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+    ApiErrorResponse:
+      type: object
+      required: [error, code]
+      properties:
+        error: { type: string }
+        code: { type: string }
+    RegistrationInput:
+      type: object
+      required: [name, email, password, mobile_number]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        email: { type: string, format: email }
+        mobile_number: { type: string, pattern: '^\+?[0-9]{10,13}$' }
+        password: { type: string, minLength: 10, maxLength: 128 }
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
+    User:
+      type: object
+      required: [id, name, email, mobile_number, created_at]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        mobile_number: { type: string }
+        created_at: { type: string }
+    AuthSession:
+      type: object
+      required: [user, shop]
+      properties:
+        user: { $ref: "#/components/schemas/User" }
+        shop:
+          anyOf:
+            - { $ref: "#/components/schemas/Shop" }
+            - { type: "null" }
+    ShopInput:
+      type: object
+      required: [shop_name]
+      properties:
+        shop_name: { type: string, minLength: 1, maxLength: 150 }
+        shop_type: { type: string, default: Kirana }
+        address: { type: string }
+        city: { type: string }
+        state: { type: string }
+        contact_number: { type: string }
+        preferred_language: { type: string, default: en }
+        profile_details:
+          anyOf:
+            - { $ref: "#/components/schemas/ShopDetails" }
+            - { type: "null" }
+    Shop:
+      type: object
+      required: [id, owner_id, shop_name, shop_type, address, city, state, contact_number, preferred_language, created_at]
+      properties:
+        id: { type: string }
+        owner_id: { type: string }
+        shop_name: { type: string }
+        shop_type: { type: string }
+        address: { type: string }
+        city: { type: string }
+        state: { type: string }
+        contact_number: { type: string }
+        preferred_language: { type: string }
+        profile_details:
+          anyOf:
+            - { $ref: "#/components/schemas/ShopDetails" }
+            - { type: "null" }
+        created_at: { type: string }
+    CustomerInput:
+      type: object
+      required: [customer_name]
+      properties:
+        customer_name: { type: string, minLength: 1, maxLength: 150 }
+        mobile_number: { type: string }
+        address: { type: string }
+        notes: { type: string }
+        contact_details:
+          anyOf:
+            - { $ref: "#/components/schemas/CustomerDetails" }
+            - { type: "null" }
+        opening_balance: { type: string, default: "0.00", description: Non-negative outstanding Udhar imported as an immutable opening credit }
+        idempotency_key: { type: string, description: Required for retry-safe customer import }
+    CustomerUpdate:
+      type: object
+      required: [customer_name]
+      properties:
+        customer_name: { type: string, minLength: 1 }
+        mobile_number: { type: string }
+        address: { type: string }
+        notes: { type: string }
+        contact_details:
+          anyOf:
+            - { $ref: "#/components/schemas/CustomerDetails" }
+            - { type: "null" }
+    Customer:
+      type: object
+      required: [id, shop_id, customer_name, mobile_number, address, notes, created_at, balance, total_credit, total_payments]
+      properties:
+        id: { type: string }
+        shop_id: { type: string }
+        customer_name: { type: string }
+        mobile_number: { type: string }
+        address: { type: string }
+        notes: { type: string }
+        contact_details:
+          anyOf:
+            - { $ref: "#/components/schemas/CustomerDetails" }
+            - { type: "null" }
+        created_at: { type: string }
+        balance: { type: string }
+        total_credit: { type: string }
+        total_payments: { type: string }
+    TransactionInput:
+      type: object
+      required: [customer_id, transaction_type, amount, idempotency_key]
+      properties:
+        customer_id: { type: string }
+        transaction_type: { type: string, enum: [credit, payment] }
+        amount: { type: string, pattern: '^\d+(\.\d{1,2})?$' }
+        description: { type: string, maxLength: 500 }
+        idempotency_key: { type: string, minLength: 8, maxLength: 128 }
+    PaymentInput:
+      type: object
+      required: [customer_id, amount, idempotency_key]
+      properties:
+        customer_id: { type: string }
+        amount: { type: string }
+        description: { type: string }
+        idempotency_key: { type: string, minLength: 8, maxLength: 128 }
+    ReversalInput:
+      type: object
+      required: [reason, idempotency_key]
+      properties:
+        reason: { type: string, minLength: 3, maxLength: 500 }
+        idempotency_key: { type: string, minLength: 8, maxLength: 128 }
+    Transaction:
+      type: object
+      required: [id, shop_id, customer_id, customer_name, transaction_type, amount, signed_amount, description, created_at, created_by, created_by_name, idempotency_key, reversal_of, is_reversed, source]
+      properties:
+        id: { type: string }
+        shop_id: { type: string }
+        customer_id: { type: string }
+        customer_name: { type: string }
+        transaction_type: { type: string, enum: [credit, payment, reversal] }
+        amount: { type: string }
+        signed_amount: { type: string }
+        description: { type: string }
+        created_at: { type: string }
+        created_by: { type: string }
+        created_by_name: { type: string }
+        idempotency_key: { type: string }
+        reversal_of: { type: [string, "null"] }
+        is_reversed: { type: boolean }
+        source: { type: string }
+    CustomerKhata:
+      type: object
+      required: [customer, transactions]
+      properties:
+        customer: { $ref: "#/components/schemas/Customer" }
+        transactions:
+          type: array
+          items: { $ref: "#/components/schemas/Transaction" }
+    DayActivity:
+      type: object
+      required: [date, credit, payments, reversals, transaction_count]
+      properties:
+        date: { type: string }
+        credit: { type: string }
+        payments: { type: string }
+        reversals: { type: string }
+        transaction_count: { type: integer }
+    Summary:
+      type: object
+      required: [total_customers, total_outstanding, total_credit, total_payments, total_advance, today_credit, today_payments, today_transactions, recent_transactions, daily_activity, top_customers, business_date]
+      properties:
+        total_customers: { type: integer }
+        total_outstanding: { type: string, description: Sum of positive customer balances }
+        total_advance: { type: string, description: Absolute sum of negative customer balances }
+        total_credit: { type: string }
+        total_payments: { type: string }
+        today_credit: { type: string }
+        today_payments: { type: string }
+        today_transactions: { type: integer }
+        business_date: { type: string }
+        recent_transactions:
+          type: array
+          items: { $ref: "#/components/schemas/Transaction" }
+        daily_activity:
+          type: array
+          items: { $ref: "#/components/schemas/DayActivity" }
+        top_customers:
+          type: array
+          items: { $ref: "#/components/schemas/Customer" }
+    DailyReport:
+      type: object
+      required: [date, total_credit, total_payments, reversal_net, transaction_count, customer_count, active_customers, total_outstanding, total_advance, transactions]
+      properties:
+        date: { type: string }
+        total_credit: { type: string }
+        total_payments: { type: string }
+        reversal_net: { type: string }
+        transaction_count: { type: integer }
+        customer_count: { type: integer }
+        active_customers: { type: integer }
+        total_outstanding: { type: string }
+        total_advance: { type: string }
+        purchase_count: { type: integer }
+        purchase_total: { type: string, description: Gross itemized sales; not a duplicate ledger collection total }
+        cash_sales: { type: string }
+        upi_sales: { type: string }
+        khata_sales: { type: string }
+        transactions:
+          type: array
+          items: { $ref: "#/components/schemas/Transaction" }
+    CategoryInput:
+      type: object
+      required: [category_name]
+      properties:
+        category_name: { type: string, minLength: 1, maxLength: 100 }
+    Category:
+      type: object
+      required: [id, shop_id, category_name]
+      properties:
+        id: { type: string }
+        shop_id: { type: string }
+        category_name: { type: string }
+    ProductInput:
+      type: object
+      required: [product_name, price]
+      properties:
+        product_name: { type: string, minLength: 1, maxLength: 150 }
+        category_id: { type: [string, "null"] }
+        price: { type: string }
+        catalog_details:
+          anyOf:
+            - { $ref: "#/components/schemas/CatalogDetails" }
+            - { type: "null" }
+    Product:
+      type: object
+      required: [id, shop_id, product_name, category_id, category_name, price, created_at]
+      properties:
+        id: { type: string }
+        shop_id: { type: string }
+        product_name: { type: string }
+        category_id: { type: [string, "null"] }
+        category_name: { type: [string, "null"] }
+        price: { type: string }
+        catalog_details:
+          anyOf:
+            - { $ref: "#/components/schemas/CatalogDetails" }
+            - { type: "null" }
+        created_at: { type: string }
+    PurchaseLineInput:
+      type: object
+      additionalProperties: false
+      required: [quantity, unit, unit_price]
+      properties:
+        product_id: { type: [string, "null"], maxLength: 36 }
+        product_name: { type: string, maxLength: 150, description: Required for custom items; catalog name is snapshotted when product_id is provided }
+        quantity: { type: string, pattern: '^\d{1,9}(\.\d{1,3})?$', description: Positive decimal string, up to three fractional digits }
+        unit: { type: string, minLength: 1, maxLength: 30 }
+        unit_price: { type: string, pattern: '^\d{1,12}(\.\d{1,2})?$' }
+    PurchaseInput:
+      type: object
+      additionalProperties: false
+      required: [customer_id, payment_method, items, idempotency_key]
+      properties:
+        customer_id: { type: string, minLength: 1, maxLength: 36 }
+        payment_method: { type: string, enum: [cash, upi, khata] }
+        items:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items: { $ref: "#/components/schemas/PurchaseLineInput" }
+        notes: { type: string, maxLength: 1000 }
+        idempotency_key: { type: string, minLength: 8, maxLength: 128 }
+    PurchaseItem:
+      type: object
+      required: [id, position, product_id, product_name, quantity, unit, unit_price, line_total]
+      properties:
+        id: { type: string }
+        position: { type: integer }
+        product_id: { type: [string, "null"] }
+        product_name: { type: string }
+        quantity: { type: string }
+        unit: { type: string }
+        unit_price: { type: string }
+        line_total: { type: string }
+    Purchase:
+      type: object
+      required: [id, shop_id, customer_id, customer_name, purchased_at, timezone, total, payment_method, payment_status, credit_transaction_id, credit_reversal_id, notes, created_by, created_by_name, items]
+      properties:
+        id: { type: string }
+        shop_id: { type: string }
+        customer_id: { type: string }
+        customer_name: { type: string }
+        purchased_at: { type: string, format: date-time }
+        timezone: { type: string, enum: [Asia/Kolkata] }
+        total: { type: string }
+        payment_method: { type: string, enum: [cash, upi, khata] }
+        payment_status: { type: string, enum: [paid, on_account, credit_reversed], description: Original purchase disposition; later repayments remain separate and are not allocated to bills }
+        credit_transaction_id: { type: [string, "null"] }
+        credit_reversal_id: { type: [string, "null"] }
+        notes: { type: string }
+        created_by: { type: string }
+        created_by_name: { type: string }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/PurchaseItem" }
+    PurchasePage:
+      type: object
+      required: [purchases, total_count, limit, offset, timezone]
+      properties:
+        purchases:
+          type: array
+          items: { $ref: "#/components/schemas/Purchase" }
+        total_count: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }
+        timezone: { type: string, enum: [Asia/Kolkata] }
+    ShopDetails:
+      type: object
+      additionalProperties: false
+      properties:
+        shopkeeper_name: { type: string, maxLength: 120 }
+        alternate_phone: { type: string, maxLength: 16 }
+        email: { type: string, maxLength: 254 }
+        market_area: { type: string, maxLength: 150 }
+        pincode: { type: string, maxLength: 12 }
+        upi_id: { type: string, maxLength: 150 }
+        gst_number: { type: string, maxLength: 30 }
+    CustomerDetails:
+      type: object
+      additionalProperties: false
+      properties:
+        alternate_phone: { type: string, maxLength: 16 }
+        alternate_phone_label: { type: string, maxLength: 100 }
+        credit_limit: { type: string, description: Informational only; not an enforced credit policy }
+    CatalogDetails:
+      type: object
+      additionalProperties: false
+      properties:
+        name_kannada: { type: string, maxLength: 150 }
+        name_hindi: { type: string, maxLength: 150 }
+        pricing_type: { type: string, enum: [per_unit, per_kg] }
+        unit: { type: string, enum: [kg, gram, packet, piece, box, litre, bottle, pouch, dozen, tin] }
+        stock_quantity: { type: number, minimum: 0, maximum: 1000000000000 }
+        min_stock_alert: { type: number, minimum: 0, maximum: 1000000000000 }
+        barcode: { type: string, maxLength: 150 }
+        voice_keywords:
+          type: array
+          maxItems: 100
+          items: { type: string, maxLength: 100 }
+        is_available: { type: boolean }
+        emoji: { type: string, maxLength: 30 }
+    IntegrationStatus:
+      type: object
+      required: [backend, database, onboarding_api, structured_commands, speech_to_text, text_to_speech, llm, documentation_url]
+      properties:
+        backend: { type: string }
+        database: { type: string }
+        onboarding_api: { type: string }
+        structured_commands: { type: string }
+        speech_to_text: { type: string }
+        text_to_speech: { type: string }
+        llm: { type: string }
+        gnani_configured: { type: boolean }
+        documentation_url: { type: string }
+    AiCommandInput:
+      type: object
+      required: [intent, customer_id]
+      properties:
+        intent: { type: string, enum: [add_credit, record_payment, get_balance] }
+        customer_id: { type: string }
+        amount: { type: string }
+        description: { type: string }
+        confirmed: { type: boolean, default: false }
+        idempotency_key: { type: string }
+        session_id: { type: string }
+    AiResult:
+      type: object
+      required: [status, customer, transaction]
+      properties:
+        status: { type: string, enum: [committed, balance] }
+        customer: { $ref: "#/components/schemas/Customer" }
+        transaction:
+          anyOf:
+            - { $ref: "#/components/schemas/Transaction" }
+            - { type: "null" }
+    VoiceProcessInput:
+      type: object
+      properties:
+        audio_base64: { type: string }
+        text: { type: string }
+        language: { type: string, enum: [kn, hi, en], default: kn }
+        session_id: { type: string }
+        confirmed: { type: boolean, default: false }
+        auto_create_customer: { type: boolean, default: true }
+        idempotency_key: { type: string }
+        pending_operation: { type: object }
+    VoiceProcessResult:
+      type: object
+      required: [status, state, message]
+      properties:
+        status: { type: string }
+        state: { type: string }
+        intent: { type: string }
+        transcript: { type: string }
+        message: { type: string }
+        customer: { $ref: "#/components/schemas/Customer" }
+        newly_created_customer: { type: boolean }
+        transaction: { $ref: "#/components/schemas/Transaction" }
+        candidates:
+          type: array
+          items: { $ref: "#/components/schemas/Customer" }
+        pending_operation: { type: object }
+        report: { $ref: "#/components/schemas/DailyReport" }
+        audio: { type: object }
+        session_id: { type: string }
+    KhataFileUploadInput:
+      type: object
+      required: [file]
+      properties:
+        file:
+          type: string
+          format: binary
+    ExtractedKhataItem:
+      type: object
+      required: [id, customer_name, transaction_type, amount, is_new_customer, uncertain]
+      properties:
+        id: { type: string }
+        customer_name: { type: string }
+        matched_customer_id: { type: string, nullable: true }
+        is_new_customer: { type: boolean, default: false }
+        transaction_type: { type: string, enum: [credit, payment] }
+        amount: { type: string }
+        date: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        uncertain: { type: boolean, default: false }
+        raw_text: { type: string, nullable: true }
+    OcrExtractResponse:
+      type: object
+      required: [success, filename, extracted_entries, total_found, message]
+      properties:
+        success: { type: boolean }
+        filename: { type: string }
+        extracted_entries:
+          type: array
+          items: { $ref: "#/components/schemas/ExtractedKhataItem" }
+        total_found: { type: integer }
+        message: { type: string }
+    KhataBatchSaveItem:
+      type: object
+      required: [customer_name, transaction_type, amount, idempotency_key]
+      properties:
+        customer_name: { type: string }
+        matched_customer_id: { type: string, nullable: true }
+        is_new_customer: { type: boolean, default: false }
+        transaction_type: { type: string, enum: [credit, payment] }
+        amount: { type: string }
+        description: { type: string, nullable: true }
+        idempotency_key: { type: string }
+    KhataBatchSaveInput:
+      type: object
+      required: [entries]
+      properties:
+        entries:
+          type: array
+          items: { $ref: "#/components/schemas/KhataBatchSaveItem" }

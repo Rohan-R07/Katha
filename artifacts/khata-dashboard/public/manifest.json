@@ -1,0 +1,25 @@
+{
+  "name": "KHATA — Digital Khata for Kirana Shops",
+  "short_name": "KHATA",
+  "description": "Voice-first multilingual digital accounting ledger for Kirana shopkeepers.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1f1008",
+  "theme_color": "#d97706",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    {
+      "src": "/khata-logo.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "48x48 72x72 96x96 144x144",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+# Secrets and workspace-only state must never be uploaded.
+.git
+.env
+.env.*
+!.env.example
+.agents
+.local
+.cache
+.config
+.conversation
+.upm
+.pythonlibs
+.pytest_cache
+**/__pycache__
+**/*.pyc
+node_modules
+**/node_modules
+generated-artifacts
+attached_assets
+**/dist
+**/*.tsbuildinfo
+
+# Preserved in GitHub, but not needed to build or run this deployment.
+shared/vendor
+artifacts/mockup-sandbox
+backend/tests

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "KHATA"
+description = "A practical digital khata for Indian Kirana shopkeepers: customer ledgers, credits, payments, daily reports, and one shared FastAPI backend."
+version = "1.0.0"
+id = "artifacts/khata-dashboard"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19689
+
+[services.development]
+run = "pnpm --filter @workspace/khata-dashboard run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/khata-dashboard", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/khata-dashboard/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19689"
+BASE_PATH = "/"

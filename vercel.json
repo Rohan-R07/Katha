@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "outputDirectory": "artifacts/khata-dashboard/dist/public",
+  "installCommand": "npx --yes pnpm@10.26.1 install --frozen-lockfile --prod=false",
+  "buildCommand": "npx --yes pnpm@10.26.1 run build:vercel",
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "includeFiles": "{backend/**,vercel_app.py,lib/api-spec/openapi.yaml}",
+      "excludeFiles": "{**/node_modules/**,.*/**,artifacts/**,shared/**,attached_assets/**,generated-artifacts/**,backend/tests/**,lib/{api-client-react,api-zod,db,integrations}/**}"
+    }
+  },
+  "routes": [
+    { "src": "/api(?:/.*)?", "dest": "/api/index" },
+    { "handle": "filesystem" },
+    { "src": "/assets/.*", "status": 404 },
+    { "src": "/.*", "dest": "/index.html" }
+  ]
+}
