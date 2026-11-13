@@ -125,7 +125,7 @@ export function KiranaAwning({ className }: { className?: string }) {
 export function KiranaStoreHeader({
   shopName,
   language = "English",
-  userName = "Amogh",
+  userName = "Sri Ganesh Kirana",
   onLogout,
   onLanguageChange,
   onOpenAndroid,

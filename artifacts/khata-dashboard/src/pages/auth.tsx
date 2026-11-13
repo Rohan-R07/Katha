@@ -135,11 +135,11 @@ export function LoginPage() {
   const [err, setErr] = useState<string | null>(null);
 
   const handleDemoSignIn = () => {
-    setEmail("amogh@kirana.com");
+    setEmail("sriganeshganeshkirana@kirana.com");
     setPassword("password123");
     setErr(null);
     login.mutate(
-      { data: { email: "amogh@kirana.com", password: "password123" } },
+      { data: { email: "sriganeshganeshkirana@kirana.com", password: "password123" } },
       { onSuccess: done, onError: (x) => setErr(errorMessage(x, "Demo sign-in failed.")) }
     );
   };
@@ -329,7 +329,7 @@ export function LoginPage() {
               type="email"
               autoComplete="email"
               required
-              placeholder="amogh@kirana.com"
+              placeholder="sriganeshganeshkirana@kirana.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />

@@ -211,7 +211,7 @@ export function AppShell({ session, children }: { session: AuthSession; children
             <KiranaStoreHeader
               shopName={session.shop?.shop_name || "Sri Ganesh Kirana Stores"}
               language={langNames[language] || "English"}
-              userName={session.user?.name || "Amogh"}
+              userName={session.user?.name || "Sri Ganesh Kirana"}
               onLogout={doLogout}
               onOpenAndroid={() => setShowAndroidModal(true)}
             />
