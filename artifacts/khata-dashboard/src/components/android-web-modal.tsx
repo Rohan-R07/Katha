@@ -27,66 +27,17 @@ import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-// QR Code SVG generator component
+// Real scannable QR Code using standard QR code rendering service
 function AndroidQRCode({ url }: { url: string }) {
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=8&data=${encodeURIComponent(url)}`;
   return (
-    <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border-2 border-amber-300 shadow-md">
-      <svg
-        viewBox="0 0 100 100"
-        className="w-40 h-40 text-stone-900"
-        fill="currentColor"
-        shapeRendering="crispEdges"
-      >
-        {/* Outer Frame */}
-        <rect width="100" height="100" fill="white" />
-        {/* Top-Left Finder Pattern */}
-        <rect x="10" y="10" width="28" height="28" fill="#1c1917" />
-        <rect x="14" y="14" width="20" height="20" fill="white" />
-        <rect x="18" y="18" width="12" height="12" fill="#d97706" />
-
-        {/* Top-Right Finder Pattern */}
-        <rect x="62" y="10" width="28" height="28" fill="#1c1917" />
-        <rect x="66" y="14" width="20" height="20" fill="white" />
-        <rect x="70" y="18" width="12" height="12" fill="#d97706" />
-
-        {/* Bottom-Left Finder Pattern */}
-        <rect x="10" y="62" width="28" height="28" fill="#1c1917" />
-        <rect x="14" y="66" width="20" height="20" fill="white" />
-        <rect x="18" y="70" width="12" height="12" fill="#d97706" />
-
-        {/* Realistic QR Data Modules */}
-        <rect x="42" y="12" width="4" height="4" fill="#1c1917" />
-        <rect x="50" y="12" width="6" height="4" fill="#1c1917" />
-        <rect x="42" y="20" width="8" height="4" fill="#1c1917" />
-        <rect x="52" y="24" width="4" height="8" fill="#1c1917" />
-        <rect x="44" y="32" width="4" height="4" fill="#1c1917" />
-
-        <rect x="12" y="44" width="8" height="4" fill="#1c1917" />
-        <rect x="24" y="44" width="4" height="4" fill="#1c1917" />
-        <rect x="32" y="42" width="6" height="6" fill="#1c1917" />
-        <rect x="42" y="42" width="16" height="16" fill="#b45309" rx="2" />
-        <rect x="62" y="44" width="10" height="4" fill="#1c1917" />
-        <rect x="76" y="44" width="4" height="8" fill="#1c1917" />
-        <rect x="84" y="44" width="6" height="4" fill="#1c1917" />
-
-        <rect x="12" y="52" width="6" height="4" fill="#1c1917" />
-        <rect x="22" y="52" width="4" height="6" fill="#1c1917" />
-        <rect x="62" y="52" width="4" height="4" fill="#1c1917" />
-        <rect x="70" y="52" width="6" height="4" fill="#1c1917" />
-        <rect x="80" y="52" width="8" height="4" fill="#1c1917" />
-
-        <rect x="44" y="64" width="8" height="4" fill="#1c1917" />
-        <rect x="56" y="64" width="4" height="8" fill="#1c1917" />
-        <rect x="44" y="74" width="4" height="6" fill="#1c1917" />
-        <rect x="52" y="76" width="6" height="4" fill="#1c1917" />
-        <rect x="64" y="64" width="6" height="4" fill="#1c1917" />
-        <rect x="74" y="64" width="4" height="6" fill="#1c1917" />
-        <rect x="82" y="64" width="8" height="4" fill="#1c1917" />
-        <rect x="64" y="74" width="12" height="4" fill="#1c1917" />
-        <rect x="80" y="74" width="8" height="6" fill="#1c1917" />
-        <rect x="64" y="82" width="4" height="6" fill="#1c1917" />
-        <rect x="72" y="82" width="16" height="4" fill="#1c1917" />
-      </svg>
+    <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border-2 border-amber-300 shadow-md">
+      <img
+        src={qrUrl}
+        alt={`QR code for ${url}`}
+        className="w-40 h-40 rounded-xl"
+        loading="lazy"
+      />
       <span className="mt-2 text-[11px] font-mono font-bold text-amber-950 bg-amber-100 px-2.5 py-0.5 rounded-full truncate max-w-[220px]">
         {url}
       </span>
